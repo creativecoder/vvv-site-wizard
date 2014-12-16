@@ -1,6 +1,6 @@
 # VVV Site Wizard
 
-Version 1.2
+Version 1.2.1
 
 This bash script makes it easy to spin up a new WordPress site using [Varying Vagrant Vagrants](https://github.com/Varying-Vagrant-Vagrants/VVV).
 
@@ -74,6 +74,12 @@ Note that it does not delete the site's database.
 Ping me on Twitter at [@alisothegeek](http://twitter.com/alisothegeek).
 
 ## Changelog
+
+### 1.2.1
+
+* Add the ability to specify root directory in web server configuration
+* Add the ability to set up a site in an existing directory. The presence of an nginx config file for a site is now what determines the ability to continue setup, rather than the existence of the directory.
+* Add easier control over WordPress version from vvv-init.sh, when WordPress installed during vagrant provisioning
 
 ### 1.2
 
