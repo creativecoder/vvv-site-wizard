@@ -311,7 +311,7 @@ if [[ $action = 'new' || $action = 'make' || $action = 'create' ]]; then
 	fi
 
 	cecho "\nProvisioning Vagrant will do the following:" default bold
-	echo -e "* Create database $site\n* Install WordPress $version in the htdocs directory\n* Make the site visible at $domain"
+	echo -e "* Create database $site\n* Install WordPress $version in the app directory\n* Make the site visible at $domain"
 
 	echo -en "\n"
 	while [ -z $continue_create ]; do
@@ -339,7 +339,7 @@ if [[ $action = 'new' || $action = 'make' || $action = 'create' ]]; then
 	echo -en "Creating site directory, wp-cli.yml, and vvv-init.sh file... "
 	mkdir $site && cd $site
 
-	printf "path: htdocs" > wp-cli.yml
+	printf "path: app" > wp-cli.yml
 
 	wp_debug_text=''
 	if [[ $wp_debug = 'y' ]]; then
@@ -349,15 +349,15 @@ if [[ $action = 'new' || $action = 'make' || $action = 'create' ]]; then
 	printf "echo \"Creating database '$site' (if it does not exist)...\"\n\n"\
 "mysql -u root --password=root -e \"CREATE DATABASE IF NOT EXISTS \\\`$db_name\\\`\"\n"\
 "mysql -u root --password=root -e \"GRANT ALL PRIVILEGES ON \\\`$db_name\\\`.* TO wp@localhost IDENTIFIED BY 'wp';\"\n\n"\
-"if [ ! -d \"htdocs\" ]; then\n"\
-"\techo 'Installing WordPress $version in $site/htdocs...'\n"\
-"\tmkdir ./htdocs\ncd ./htdocs\n"\
+"if [ ! -d \"app\" ]; then\n"\
+"\techo 'Installing WordPress $version in $site/app...'\n"\
+"\tmkdir ./app\ncd ./app\n"\
 "\twp core download --allow-root $installversion\n"\
 "\twp core config --dbname=\"$db_name\" --dbuser=wp --dbpass=wp --dbhost=\"localhost\" --allow-root$wp_debug_text\n"\
 "\twp core install --url=$domain --title=\"$site - A WordPress Site\" --admin_user=admin --admin_password=password --admin_email=demo@example.com --allow-root\n"\
 "\t\tcd -\n"\
 "else\n"\
-"\techo 'Updating WordPress in $site/htdocs...'\n"\
+"\techo 'Updating WordPress in $site/app...'\n"\
 "\twp core update --allow-root\n"\
 "\twp core update-db --allow-root\n"\
 "fi\n" > vvv-init.sh
@@ -377,7 +377,7 @@ if [[ $action = 'new' || $action = 'make' || $action = 'create' ]]; then
 	cd $path/config/nginx-config/sites
 	echo -en "Creating nginx-config/sites/$site.conf... "
 	sed -e "s|testserver\.com|$domain|" \
-		-e "s|wordpress-local|$site/htdocs|" local-nginx-example.conf-sample > $site.conf
+		-e "s|wordpress-local|$site/app|" local-nginx-example.conf-sample > $site.conf
 
 	if [[ $image_proxy = 'y' ]]; then
 		sed -e $'s|\}|\\\n\\\t# Directives to send expires headers and turn off 404 error logging\.\\\n\\\tlocation ~\* \\.\(js\|css\|png\|jpg\|jpeg\|gif\|ico\)\$ \{\\\n\\\t\texpires 24h;\\\n\\\t\\\tlog_not_found off;\\\n\\\t\\\ttry_files \$uri \$uri\/ @production;\\\n\\\t\}\\\n\\\n\\\tlocation @production \{\\\n\\\t\\\tresolver 8\.8\.8\.8;\\\n\\\t\\\tproxy_pass http://LIVE_URL/$uri;\\\n\\\t\}\\\n\}|' -e "s|LIVE_URL|$live_site_url|" $site.conf > tmp.conf
